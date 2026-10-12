@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Аренда кальянов в стиле Loft - SorokYardov</title>
+    <meta name="description" content="Ищете кальяны в стиле Loft? SorokYardov предлагает аренду качественных кальянов для вашего мероприятия.">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f6fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        /* Шапка */
+        header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.8em;
+            margin: 0 0 16px 0;
+            font-weight: 700;
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            margin: 0;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Блок преимуществ */
+        .features {
+            display: flex;
+            gap: 24px;
+            padding: 60px 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .feature {
+            flex: 1 1 240px;
+            max-width: 300px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        .feature h3 {
+            color: #667eea;
+            margin: 0 0 12px 0;
+            font-size: 1.2em;
+        }
+        .feature p {
+            margin: 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        /* Блок бронирования */
+        .booking {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            margin: 20px 0 60px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .booking h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 0 0 8px 0;
+            font-size: 1.8em;
+        }
+        .booking .subtitle {
+            text-align: center;
+            color: #888;
+            margin: 0 0 32px 0;
+            font-size: 0.95em;
+        }
+
+        /* Календарь */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-header button {
+            background: #f0f0f5;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #667eea;
+            transition: background 0.2s;
+        }
+        .calendar-header button:hover {
+            background: #e0e0ec;
+        }
+        .calendar-header .month-year {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .weekdays div {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85em;
+            color: #888;
+            padding: 8px 0;
+            text-transform: uppercase;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+        .day {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            background: #f9f9fc;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .day:hover:not(.disabled):not(.busy):not(.selected) {
+            background: #eef1ff;
+            border-color: #c7d0ff;
+        }
+        .day.empty {
+            background: transparent;
+            cursor: default;
+        }
+        .day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            background: transparent;
+        }
+        .day.busy {
+            background: #ffe5e5;
+            color: #c0392b;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+        .day.selected {
+            background: #667eea;
+            color: #fff;
+            border-color: #4a5fd0;
+        }
+        .day.today {
+            font-weight: 700;
+            border-color: #667eea;
+        }
+
+        /* Легенда */
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 24px 0 32px;
+            flex-wrap: wrap;
+            font-size: 0.85em;
+            color: #666;
+        }
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend .dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .dot.free { background: #f9f9fc; border: 1px solid #ddd; }
+        .dot.busy { background: #ffe5e5; }
+        .dot.selected { background: #667eea; }
+
+        /* Форма */
+        .booking-form {
+            display: none;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid #eee;
+        }
+        .booking-form.active {
+            display: block;
+        }
+        .booking-form h3 {
+            text-align: center;
+            color: #667eea;
+            margin: 0 0 24px 0;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            color: #555;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0ec;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border 0.2s;
+            background: #fafaff;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            font-family: inherit;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Контакты */
+        .contacts {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        }
+        .contacts h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 0 0 24px 0;
+        }
+        .contacts-grid {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .contact-item {
+            text-align: center;
+            flex: 1 1 200px;
+        }
+        .contact-item .label {
+            font-size: 0.85em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+        .contact-item .value {
+            font-size: 1.05em;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        /* CTA */
+        .cta {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+            color: #fff;
+            padding: 50px 20px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+        .cta h2 {
+            margin: 0;
+            font-size: 1.6em;
+        }
+
+        /* Футер */
+        footer {
+            background: #2c3e50;
+            color: #aaa;
+            padding: 30px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        /* Модальное окно успеха */
+        .success-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .success-modal.active {
+            display: flex;
+        }
+        .success-modal .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .success-modal h3 {
+            color: #43a047;
+            margin: 0 0 16px 0;
+            font-size: 1.4em;
+        }
+        .success-modal p {
+            color: #666;
+            margin: 0 0 24px 0;
+        }
+        .success-modal button {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* Адаптив */
+        @media (max-width: 600px) {
+            header h1 { font-size: 2em; }
+            .booking { padding: 24px; }
+            .features { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Аренда кальянов в Loft стиле</h1>
+        <p>Создайте уникальную атмосферу на вашем мероприятии с кальянами от SorokYardov. Мы предлагаем широкий выбор кальянов, которые идеально впишутся в стиль Loft.</p>
+    </header>
+
+    <div class="container">
+        <section class="features">
+            
+            <div class="feature">
+                <h3>Качество и стиль</h3>
+                <p>Наши кальяны выполнены из высококачественных материалов и имеют уникальный дизайн, который подчеркнет атмосферу вашего мероприятия.</p>
+            </div>
+            
+            <div class="feature">
+                <h3>Удобная доставка</h3>
+                <p>Мы обеспечиваем быструю и безопасную доставку кальянов прямо на ваше мероприятие, чтобы вы могли сосредоточиться на отдыхе.</p>
+            </div>
+            
+            <div class="feature">
+                <h3>Индивидуальный подход</h3>
+                <p>Мы предлагаем персонализированные пакеты аренды, чтобы удовлетворить все ваши потребности и пожелания.</p>
+            </div>
+            
+        </section>
+
+        <section class="booking">
+            <h2>Забронировать день</h2>
+            <p class="subtitle">Выберите свободную дату и оставьте заявку</p>
+
+            <div class="calendar-header">
+                <button id="prevMonth" type="button">‹</button>
+                <div class="month-year" id="monthYear">—</div>
+                <button id="nextMonth" type="button">›</button>
+            </div>
+
+            <div class="weekdays">
+                <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div>
+                <div>Пт</div><div>Сб</div><div>Вс</div>
+            </div>
+
+            <div class="days" id="days"></div>
+
+            <div class="legend">
+                <span><span class="dot free"></span> Свободно</span>
+                <span><span class="dot busy"></span> Занято</span>
+                <span><span class="dot selected"></span> Выбрано</span>
+            </div>
+
+            <form class="booking-form" id="bookingForm">
+                <h3>Вы выбрали: <span id="selectedDate"></span></h3>
+                <div class="form-group">
+                    <label for="name">Ваше имя</label>
+                    <input type="text" id="name" name="name" placeholder="Иван Иванов" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+7 (___) ___-__-__" required>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Комментарий (необязательно)</label>
+                    <textarea id="comment" name="comment" rows="3" placeholder="Пожелания..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Отправить заявку</button>
+            </form>
+        </section>
+
+        <section class="contacts">
+            <h2>Контакты</h2>
+            <div class="contacts-grid">
+                <div class="contact-item">
+                    <div class="label">Компания</div>
+                    <div class="value">SorokYardov</div>
+                </div>
+                <div class="contact-item">
+                    <div class="label">Адрес</div>
+                    <div class="value">Улица Лофт 5, Москва, Россия</div>
+                </div>
+                <div class="contact-item">
+                    <div class="label">Телефон</div>
+                    <div class="value">+7 (495) 123-45-67</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Забронируйте кальян прямо сейчас!</h2>
+        </section>
+    </div>
+
+    <footer>SorokYardov - ваш надежный партнер в аренде кальянов.</footer>
+
+    <!-- Модальное окно успеха -->
+    <div class="success-modal" id="successModal">
+        <div class="modal-content">
+            <h3>✅ Заявка отправлена!</h3>
+            <p>Спасибо! Мы свяжемся с вами в течение 15 минут для подтверждения записи.</p>
+            <button onclick="closeModal()">Хорошо</button>
+        </div>
+    </div>
+
+    <script>
+        const busyDates = [
+            // "2026-09-28",
+            // "2026-10-05",
+        ];
+
+        let currentMonth = new Date();
+        let selectedDate = null;
+
+        const monthYearEl = document.getElementById('monthYear');
+        const daysEl = document.getElementById('days');
+        const formEl = document.getElementById('bookingForm');
+        const selectedDateEl = document.getElementById('selectedDate');
+        const successModal = document.getElementById('successModal');
+
+        function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+
+            const monthNames = [
+                'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            ];
+            monthYearEl.textContent = monthNames[month] + ' ' + year;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const totalDays = lastDay.getDate();
+
+            let startOffset = firstDay.getDay() - 1;
+            if (startOffset < 0) startOffset = 6;
+
+            daysEl.innerHTML = '';
+
+            for (let i = 0; i < startOffset; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day empty';
+                daysEl.appendChild(empty);
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let d = 1; d <= totalDays; d++) {
+                const dateObj = new Date(year, month, d);
+                const iso = formatISO(dateObj);
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                dayEl.textContent = d;
+
+                if (dateObj < today) {
+                    dayEl.classList.add('disabled');
+                } else if (busyDates.includes(iso)) {
+                    dayEl.classList.add('busy');
+                } else {
+                    if (iso === formatISO(today)) dayEl.classList.add('today');
+                    if (iso === selectedDate) dayEl.classList.add('selected');
+                    dayEl.addEventListener('click', () => selectDate(iso, dateObj));
+                }
+
+                daysEl.appendChild(dayEl);
+            }
+        }
+
+        function formatISO(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function selectDate(iso, dateObj) {
+            selectedDate = iso;
+            const formatted = dateObj.toLocaleDateString('ru-RU', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+            selectedDateEl.textContent = formatted;
+            formEl.classList.add('active');
+            renderCalendar();
+            formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            renderCalendar();
+        });
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            renderCalendar();
+        });
+
+        formEl.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+
+            if (!name || !phone) return;
+
+            console.log('Бронь:', { date: selectedDate, name, phone, comment });
+
+            if (!busyDates.includes(selectedDate)) {
+                busyDates.push(selectedDate);
+            }
+
+            successModal.classList.add('active');
+        });
+
+        function closeModal() {
+            successModal.classList.remove('active');
+            formEl.reset();
+            formEl.classList.remove('active');
+            selectedDate = null;
+            renderCalendar();
+        }
+
+        renderCalendar();
+    </script>
+</body>
+</html>
